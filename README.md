@@ -10,7 +10,7 @@ The long-term goal is to **design, implement, and compare**:
 3. A **Quantum CycleGAN or Hybrid Classical–Quantum GAN**
 
 By comparing these approaches, the project aims to investigate whether **quantum circuits can offer advantages** in generative modeling, such as improved expressivity, efficiency, or learning dynamics.\
-The major library used are PyTorch and TensorFlow for the classical GAN implementation and PennyLane and Qiskit for the quantum components implementation.
+The major libraries used are PyTorch and TensorFlow for the classical GAN implementation and PennyLane and Qiskit for the quantum components implementation.
 
 
 ## Objectives
