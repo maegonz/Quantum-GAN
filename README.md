@@ -1,6 +1,6 @@
-# Quantum Machine Learning GANs  
+# Quantum GANs  
 
-## 📌 Overview
+## Overview
 
 This project explores **Generative Adversarial Networks** from both a **classical machine learning** and a **quantum machine learning** perspective.  
 The long-term goal is to **design, implement, and compare**:
@@ -9,10 +9,11 @@ The long-term goal is to **design, implement, and compare**:
 2. A **Quantum GAN**
 3. A **Quantum CycleGAN or Hybrid Classical–Quantum GAN**
 
-By comparing these approaches, the project aims to investigate whether **quantum circuits can offer advantages** in generative modeling, such as improved expressivity, efficiency, or learning dynamics.
+By comparing these approaches, the project aims to investigate whether **quantum circuits can offer advantages** in generative modeling, such as improved expressivity, efficiency, or learning dynamics.\
+The major library used are PyTorch and TensorFlow for the classical GAN implementation and PennyLane and Qiskit for the quantum components implementation.
 
 
-## 🎯 Objectives
+## Objectives
 
 - Implement and train a **baseline Classical GAN**
 - Develop a **Quantum GAN** using parameterized quantum circuits
@@ -24,7 +25,7 @@ By comparing these approaches, the project aims to investigate whether **quantum
   - **Quantum CycleGAN**
   - **Hybrid Classical–Quantum GAN**
 
-## 🧠 Background
+## Background
 
 Generative Adversarial Networks consist of two competing models:
 
@@ -39,41 +40,35 @@ In a **Quantum GAN**, one or both of these components are replaced with **quantu
 This project is part of a broader exploration of **Quantum Machine Learning** and **Noisy Intermediate-Scale Quantum** devices.
 
 
-## 🏗️ Structure
+## Structure
 
 ```text
 .
-├── classical_gan/
-│   ├── model.py
-│   ├── train.py
+├── data/
+│   └── dataset.py
+│
+├── GANs/
+│   ├── blocks.py
+│   ├── discriminator.py
+│   ├── generator.py
+│   ├── methods.py
 │   ├── utils.py
 │   └── results/
 │
-├── quantum_gan/              # 🚧 In progress
+├── QGANs/              # 🚧 In progress
 │   ├── quantum_generator.py
 │   ├── quantum_discriminator.py
 │   └── circuits/
 │
-├── hybrid_gan/               # 🚧 Planned
+├── Hybrid_GANs/               # 🚧 Planned
 │
-├── data/
 ├── experiments/
 ├── notebooks/
+├── main.py
+├── LICENSE
 └── README.md
 ```
 
-## 🚀 Status: Classical & Quantum GANs
-
-### 📌 Current Status
-
-| Component            | Status |
-|----------------------|--------|
-| Classical GAN        | ✅ Implemented & Trained |
-| Quantum GAN          | 🚧 In Progress |
-| Quantum CycleGAN     | ⏳ Planned |
-| Hybrid GAN           | ⏳ Planned |
-
----
 
 ### ⚠️ Important Notice
 
@@ -82,17 +77,23 @@ At the current stage of the project:
 - **Only the Classical GAN** has been fully implemented and trained.
 - **Quantum and hybrid approaches** are under active development and experimentation.
 
+| Component            | Status |
+|----------------------|--------|
+| Classical GAN        | ✅ Implemented & Trained |
+| Quantum GAN          | 🚧 In Progress |
+| Quantum CycleGAN     | ⏳ Planned |
+| Hybrid GAN           | ⏳ Planned |
 
-## 🔬 Classical GAN (Implemented)
+
+## Classical GAN
 
 - Fully classical neural network architecture  
 - Serves as a **baseline reference**  
 - Successfully trained and evaluated  
 - Provides metrics for comparison with future quantum models  
 
----
 
-## ⚛️ Quantum GAN (In Progress)
+## Quantum GAN
 
 ### Planned Characteristics
 
@@ -109,9 +110,8 @@ At the current stage of the project:
 - Noise sensitivity  
 - Gradient estimation  
 
----
 
-## 🔄 Quantum CycleGAN / Hybrid GAN (Planned)
+## Quantum CycleGAN / Hybrid GAN
 
 ### Potential Research Directions
 
@@ -119,7 +119,7 @@ At the current stage of the project:
 - Bidirectional mappings using quantum circuits  
 - Hybrid classical–quantum adversarial training loops  
 
-## 📊 Evaluation Metrics (Planned)
+## Evaluation Metrics
 
 - Generator and discriminator losses  
 - Sample diversity and quality  
@@ -127,26 +127,22 @@ At the current stage of the project:
 - Computational overhead  
 - Scalability  
 
-## 🛠️ Technologies & Tools
-
-- PyTorch / TensorFlow (Classical GAN)  
-- PennyLane / Qiskit (Quantum components) 
-
-## 📌 Future Work
+## Future Work
 
 - Complete Quantum GAN implementation  
 - Perform systematic classical vs. quantum comparisons  
 - Extend to CycleGAN and hybrid architectures  
 - Evaluate performance on real quantum hardware (if feasible)  
 
-## 📚 References
+## References
 
 - I. Goodfellow et al., *Generative Adversarial Networks*  
 - S. Lloyd et al., *Quantum Generative Adversarial Learning*  
-- Quantum Machine Learning research literature  
+
+This list is not exhaustive, is subject to change.
 
 
 
-## 📄 License
+## License
 
 This project is licensed under the **APACHE 2.0 License**.
