@@ -110,15 +110,6 @@ At the current stage of the project:
 - Noise sensitivity  
 - Gradient estimation  
 
-
-## Quantum CycleGAN / Hybrid GAN
-
-### Potential Research Directions
-
-- Quantum generator with classical discriminator  
-- Bidirectional mappings using quantum circuits  
-- Hybrid classical–quantum adversarial training loops  
-
 ## Evaluation Metrics
 
 - Generator and discriminator losses  
@@ -127,9 +118,11 @@ At the current stage of the project:
 - Computational overhead  
 - Scalability  
 
-## Future Work
+## Potential Research Directions & Future Work
 
-- Complete Quantum GAN implementation  
+- Quantum generator with classical discriminator  
+- Bidirectional mappings using quantum circuits  
+- Hybrid classical–quantum adversarial training loops  
 - Perform systematic classical vs. quantum comparisons  
 - Extend to CycleGAN and hybrid architectures  
 - Evaluate performance on real quantum hardware (if feasible)  
