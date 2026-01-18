@@ -1,58 +1,39 @@
-import torch
 import torch.nn as nn
-from .blocks import ConvBlock, ResBlock
+from .blocks import GenBlock
 
-## Generator network for GANs image-to-image tasks
+## Generator network for a Deep Convolutional GAN (DCGAN)
 class Generator(nn.Module):
-    def __init__(self, in_channels, num_features=64, num_residuals=9):
+    def __init__(self, latent_dim, img_channels, num_features=64):
         """
         Initialize the Generator network.
         
-        Parameters
-        ----------
-        in_channels : int
-            Number of input channels
-        num_features : int, optional
-            Number of features in the first convolutional layer. Default is 64.
-        num_residuals : int, optional
-            Number of residual blocks. Default is 9.
+        Params
+        -------
+        latent_dim : int
+            Dimension of the input latent nois vector.
+        img_channels : int
+            Number of channels in the output image.
+        num_features : int, Optional
+            Number of features in the first convolutional layer.
+            Defaults to 64.
         """
         super(Generator, self).__init__()
-        # Initial convolution block with 7x7 kernel and reflection padding
-        self.initial = nn.Sequential(
-            nn.Conv2d(in_channels, num_features, kernel_size=7, stride=1, padding=3, padding_mode="reflect"),
-            nn.InstanceNorm2d(num_features),
-            nn.ReLU(inplace=True)
+
+        self.generator = nn.Sequential(
+            # From latent vector Z to feature map
+            GenBlock(latent_dim, num_features * 8, stride=1, biais=True),
+            # Upsampling layers to increase spatial dimension
+            # (num_features*8) x 4 x 4
+            GenBlock(num_features * 8, num_features * 4, biais=True),
+            # (num_features*4) x 8 x 8
+            GenBlock(num_features * 4, num_features * 2, biais=True),
+            # (num_features*2) x 16 x 16
+            GenBlock(num_features * 2, num_features, biais=True),
+            # (num_features) x 32 x 32
+            nn.ConvTranspose2d(num_features, img_channels),
+            nn.Tanh()  # Output activation to map values between -1 and 1
         )
-
-        # Downsampling layers to reduce spatial dimensions
-        self.downsampling = nn.Sequential(
-            ConvBlock(num_features, num_features * 2, down=True, kernel_size=3, stride=2, padding=1),
-            ConvBlock(num_features * 2, num_features * 4, down=True, kernel_size=3, stride=2, padding=1)
-        )
-
-        # Residual blocks for learning complex features while preserving input details
-        self.residuals = nn.Sequential(
-            *[ResBlock(num_features * 4) for _ in range(num_residuals)]
-        )
-
-        # Upsampling layers to restore spatial dimensions
-        self.upsampling = nn.Sequential(
-            ConvBlock(num_features * 4, num_features * 2, down=False, kernel_size=3, stride=2, padding=1, output_padding=1),
-            ConvBlock(num_features * 2, num_features, down=False, kernel_size=3, stride=2, padding=1, output_padding=1)
-        )
-
-        # Final convolution to produce the output image with the same number of channels as input
-        self.final = nn.Conv2d(num_features, in_channels, kernel_size=7, stride=1, padding=3, padding_mode="reflect")
-        
-        # Output activation to map values between -1 and 1
-        self.tanh = nn.Tanh()
-
-    def forward(self, x):
-        output = self.initial(x)
-        output = self.downsampling(output)
-        output = self.residuals(output)
-        output = self.upsampling(output)
-        output = self.final(output)
-        output = self.tanh(output)
+    
+    def forward(self, input):
+        output = self.generator(input)
         return output
