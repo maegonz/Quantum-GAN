@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torchvision.utils as vutils
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 from torch.amp import autocast, GradScaler
@@ -29,7 +30,7 @@ def training(generator: Generator,
              epochs: int,
              optimizerG: Optimizer,
              optimizerD: Optimizer,
-             batch_size: int=64,
+            #  batch_size: int=64,
              criterion: nn.Module = nn.BCELoss(),
              val_loader: DataLoader=None,
              use_amp: bool=True):
@@ -74,7 +75,7 @@ def training(generator: Generator,
     use_amp = use_amp and device.type == "cuda"
     scaler = GradScaler(enabled=use_amp)
 
-    noise_z = torch.randn(batch_size, generator.latent_dim, 1, 1, device=device)
+    # noise_z = torch.randn(batch_size, generator.latent_dim, 1, 1, device=device)
     real_label = 1
     fake_label = 0
 
@@ -88,7 +89,7 @@ def training(generator: Generator,
 
         loop = tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}", leave=False)
 
-        for batch, _ in loop:
+        for id, (batch, _) in enumerate(loop):
             ############################
             # (1) Update Discriminator network: maximize log(D(x)) + log(1 - D(G(z)))
             ###########################
@@ -96,7 +97,7 @@ def training(generator: Generator,
             # train with real image
             discriminator.zero_grad(set_to_none=True)
             real_img = batch[0].to(device)
-            assert real_img.size(0) == batch_size, "Batch size mismatch."
+            # assert real_img.size(0) == batch_size, "Batch size mismatch."
             batch_size = real_img.size(0)
             label = torch.full((batch_size,), real_label, dtype=real_img.dtype, device=device)
 
@@ -128,7 +129,6 @@ def training(generator: Generator,
             running_D_loss += errD.item()
             optimizerD.step()
 
-
             ############################
             # (2) Update G network: maximize log(D(G(z)))
             ###########################
@@ -148,6 +148,10 @@ def training(generator: Generator,
 
             loop.set_postfix(loss_D=errD.item(), loss_G=errG.item(), D_x=D_x, D_G_z1=D_G_z1, D_G_z2=D_G_z2)
 
+            if id % 100 == 0:
+                vutils.save_image(real_img,'%s/real_samples.png' % './output/', normalize=True)
+                vutils.save_image(fake_img.detach(), '%s/fake_samples_epoch_%03d.png' % ('./output/', epoch), normalize=True)
+
         torch.cuda.empty_cache()
 
         # epoch_loss = running_loss / len(train_loader.dataset)
@@ -155,20 +159,5 @@ def training(generator: Generator,
 
         # epoch_tqdm.set_postfix(train_loss=epoch_loss)
 
-    # return train_losses
-
-
-#         if i % 100 == 0:
-#             vutils.save_image(real_cpu,
-#                     '%s/real_samples.png' % opt.outf,
-#                     normalize=True)
-#             fake = netG(fixed_noise)
-#             vutils.save_image(fake.detach(),
-#                     '%s/fake_samples_epoch_%03d.png' % (opt.outf, epoch),
-#                     normalize=True)
-
-#         if opt.dry_run:
-#             break
-#     # do checkpointing
-#     torch.save(netG.state_dict(), '%s/netG_epoch_%d.pth' % (opt.outf, epoch))
-#     torch.save(netD.state_dict(), '%s/netD_epoch_%d.pth' % (opt.outf, epoch))
+        torch.save(generator.state_dict(), '%s/generator_epoch_%d.pth' % ('./output/', epoch))
+        torch.save(discriminator.state_dict(), '%s/discriminator_epoch_%d.pth' % ('./output/', epoch))
