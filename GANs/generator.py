@@ -22,6 +22,7 @@ class Generator(nn.Module):
         """
         super(Generator, self).__init__()
 
+        self.latent_dim = latent_dim
         self.generator = nn.Sequential(
             # From latent vector Z to feature map
             GenBlock(latent_dim, num_features * 8, stride=1, biais=biais),
