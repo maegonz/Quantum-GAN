@@ -39,5 +39,8 @@ class Generator(nn.Module):
         )
     
     def forward(self, input):
+        """
+        Note: input is a noise vector of shape (batch_size, latent_dim, 1, 1)
+        """
         output = self.generator(input)
         return output
