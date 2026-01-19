@@ -96,7 +96,7 @@ def training(generator: Generator,
 
             # train with real image
             discriminator.zero_grad(set_to_none=True)
-            real_img = batch[0].to(device)
+            real_img = batch.to(device)
             # assert real_img.size(0) == batch_size, "Batch size mismatch."
             batch_size = real_img.size(0)
             label = torch.full((batch_size,), real_label, dtype=real_img.dtype, device=device)
