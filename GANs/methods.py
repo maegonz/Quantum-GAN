@@ -105,7 +105,7 @@ def training(generator: Generator,
                 outputs = discriminator(real_img)
                 errD_real = criterion(outputs, label)
 
-            scaler.scale(errD_real).backward()
+            scaler.scale(errD_real).backward(retain_graph=True)
             scaler.step(optimizerD)
             scaler.update()
             D_x = outputs.mean().item()
@@ -120,7 +120,7 @@ def training(generator: Generator,
                 output = discriminator(fake_img)
                 errD_fake = criterion(output, label)
             
-            scaler.scale(errD_fake).backward()
+            scaler.scale(errD_fake).backward(retain_graph=True)
             scaler.step(optimizerD)
             scaler.update()
             D_G_z1 = output.mean().item()
@@ -149,15 +149,10 @@ def training(generator: Generator,
             loop.set_postfix(loss_D=errD.item(), loss_G=errG.item(), D_x=D_x, D_G_z1=D_G_z1, D_G_z2=D_G_z2)
 
             if id % 100 == 0:
-                vutils.save_image(real_img,'%s/real_samples.png' % './output/', normalize=True)
-                vutils.save_image(fake_img.detach(), '%s/fake_samples_epoch_%03d.png' % ('./output/', epoch), normalize=True)
+                vutils.save_image(real_img,'./GANs/outputs/real_samples.png', normalize=True)
+                vutils.save_image(fake_img.detach(), './GANs/outputs/fake_samples_epoch_%03d.png' % (epoch), normalize=True)
 
         torch.cuda.empty_cache()
 
-        # epoch_loss = running_loss / len(train_loader.dataset)
-        # train_losses.append(epoch_loss)
-
-        # epoch_tqdm.set_postfix(train_loss=epoch_loss)
-
-        torch.save(generator.state_dict(), '%s/generator_epoch_%d.pth' % ('./output/', epoch))
-        torch.save(discriminator.state_dict(), '%s/discriminator_epoch_%d.pth' % ('./output/', epoch))
+        torch.save(generator.state_dict(), '%s/generator_epoch_%d.pth' % ('./GANs/saved', epoch))
+        torch.save(discriminator.state_dict(), '%s/discriminator_epoch_%d.pth' % ('./GANs/saved', epoch))
