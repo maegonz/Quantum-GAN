@@ -21,21 +21,21 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
 
         self.discriminator = nn.Sequential(
-            # Input: in_channels x 64 x 64
+            # Input: in_channels x 32 x 32
             nn.Conv2d(in_channels, num_features, kernel_size=4, stride=2, padding=1, bias=bias),
             nn.LeakyReLU(0.2, inplace=True),
-            # num_features x 32 x 32
+            # num_features x 16 x 16
             DiscBlock(num_features, num_features * 2, bias=bias),
-            # (num_features*2) x 16 x 16
+            # (num_features*2) x 8 x 8
             DiscBlock(num_features * 2, num_features * 4, bias=bias),
-            # (num_features*4) x 8 x 8
+            # (num_features*4) x 4 x 4
             DiscBlock(num_features * 4, num_features * 8, bias=bias),
-            # (num_features*8) x 4 x 4
-            nn.Conv2d(num_features * 8, 1, kernel_size=4, stride=1, padding=0, bias=bias),
+            # (num_features*8) x 2 x 2
+            nn.Conv2d(num_features * 8, 1, kernel_size=2, stride=1, padding=0, bias=bias),
             # Output: 1 x 1 x 1
             nn.Sigmoid()
         )
     
     def forward(self, input):
         output = self.discriminator(input)
-        return output.view(-1, 1).squeeze(1)
+        return output.view(-1)
