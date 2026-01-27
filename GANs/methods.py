@@ -79,7 +79,7 @@ def training(generator: Generator,
     real_label = 1
     fake_label = 0
 
-    train_losses = []
+    D_loss, G_loss = [], []
 
     epoch_tqdm = tqdm(range(epochs), desc="Training Progress")
 
@@ -153,6 +153,13 @@ def training(generator: Generator,
                 vutils.save_image(fake_img.detach(), './GANs/outputs/fake_samples_epoch_%03d.png' % (epoch), normalize=True)
 
         torch.cuda.empty_cache()
+
+        epoch_D_loss = running_D_loss / len(train_loader.dataset)
+        D_loss.append(epoch_D_loss)
+        epoch_G_loss = running_G_loss / len(train_loader.dataset)
+        G_loss.append(epoch_G_loss)
+
+        epoch_tqdm.set_postfix(train_D_loss=epoch_D_loss, train_G_loss=epoch_G_loss)
 
         torch.save(generator.state_dict(), '%s/generator_epoch_%d.pth' % ('./GANs/saved', epoch))
         torch.save(discriminator.state_dict(), '%s/discriminator_epoch_%d.pth' % ('./GANs/saved', epoch))
