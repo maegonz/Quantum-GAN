@@ -7,7 +7,7 @@ The long-term goal is to **design, implement, and compare**:
 
 1. A **Classical GAN**
 2. A **Quantum GAN**
-3. A **Quantum CycleGAN or Hybrid Classical–Quantum GAN**
+3. A **Quantum CycleGAN**
 
 By comparing these approaches, the project aims to investigate whether **quantum circuits can offer advantages** in generative modeling, such as improved expressivity, efficiency, or learning dynamics.\
 The major libraries used are PyTorch and TensorFlow for the classical GAN implementation and PennyLane and Qiskit for the quantum components implementation.
@@ -17,7 +17,7 @@ The major libraries used are PyTorch and TensorFlow for the classical GAN implem
 
 The objectives of this project is in the first place to implement and train a **baseline classical GAN**, then develop a **quantum GAN** using parameterized quantum circuits in order to be able to compare both classical and quantum models and study *training stability*, *sample quality* or *convergence behavior*.
 
-Afterwards, I aim to explore more advanced architectures, such as **quantum Cycle GAN** and **hybrid classical-quantum GAN**.
+Afterwards, I aim to explore more advanced architectures, such as **quantum Cycle GAN** .
 
 ## Background
 
@@ -60,8 +60,6 @@ This project is part of a broader exploration of **Quantum Machine Learning** an
 │   ├── quantum_discriminator.py
 │   └── circuits/
 │
-├── Hybrid_GANs/               # 🚧 Planned
-│
 ├── experiments/
 ├── notebooks/
 ├── main.py
@@ -82,8 +80,6 @@ At the current stage of the project:
 | Classical GAN        | ✅ Implemented & Trained |
 | Quantum GAN          | 🚧 In Progress |
 | Quantum CycleGAN     | ⏳ Planned |
-| Hybrid GAN           | ⏳ Planned |
-
 
 <!-- ## Classical GAN
 
