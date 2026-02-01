@@ -33,7 +33,7 @@ class Discriminator(nn.Module):
             # (num_features*8) x 2 x 2
             nn.Conv2d(num_features * 8, 1, kernel_size=2, stride=1, padding=0, bias=bias),
             # Output: 1 x 1 x 1
-            nn.Sigmoid()
+            # nn.Sigmoid()  # Removed Sigmoid for BCEWithLogitsLoss
         )
     
     def forward(self, input):
