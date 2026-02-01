@@ -53,13 +53,13 @@ class DiscBlock(nn.Module):
         super(DiscBlock, self).__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding, bias=bias, **kwargs)
         # Normalize features for better training stability
-        self.norm = nn.BatchNorm2d(out_channels)
-        # self.norm = nn.InstanceNorm2d(out_channels)
+        # self.norm = nn.BatchNorm2d(out_channels)
+        # self.norm = nn.InstanceNorm2d(out_channels, affine=True)
         # Leaky ReLU activation to allow small gradients for negative inputs
         self.lk_relu = nn.LeakyReLU(0.2, inplace=True)
 
     def forward(self, x):
         output = self.conv(x)
-        output = self.norm(output)
+        # output = self.norm(output)
         output = self.lk_relu(output)
         return output
