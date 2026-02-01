@@ -76,8 +76,8 @@ def training(generator: Generator,
     scaler = GradScaler(enabled=use_amp)
 
     # noise_z = torch.randn(batch_size, generator.latent_dim, 1, 1, device=device)
-    real_label = 1
-    fake_label = 0
+    real_label = 1.0
+    fake_label = 0.0
 
     D_loss, G_loss = [], []
 
@@ -95,56 +95,61 @@ def training(generator: Generator,
             ###########################
 
             # train with real image
-            discriminator.zero_grad(set_to_none=True)
             real_img = batch.to(device)
             # assert real_img.size(0) == batch_size, "Batch size mismatch."
             batch_size = real_img.size(0)
-            label = torch.full((batch_size,), real_label, dtype=real_img.dtype, device=device)
-
-            with autocast(device_type=device.type, enabled=use_amp):
-                outputs = discriminator(real_img)
-                errD_real = criterion(outputs, label)
-
-            scaler.scale(errD_real).backward(retain_graph=True)
-            scaler.step(optimizerD)
-            scaler.update()
-            D_x = outputs.mean().item()
+            assert not torch.isnan(real_img).any(), "NaN detected in real images"
+            assert not torch.isinf(real_img).any(), "Inf detected in real images"
+            real_labels = torch.full((batch_size,), real_label, dtype=real_img.dtype, device=device)
 
             # train with fake image
-            discriminator.zero_grad(set_to_none=True)
             noise = torch.randn(batch_size, generator.latent_dim, 1, 1, device=device)
             fake_img = generator(noise)
-            label.fill_(fake_label)  # replace 1 value for real images to 0 for fake images
-            
+            assert not torch.isnan(fake_img).any(), "NaN detected in fake images"
+            assert not torch.isinf(fake_img).any(), "Inf detected in fake images"
+            fake_labels = torch.full((batch_size,), fake_label, dtype=real_img.dtype, device=device)
+
+            optimizerD.zero_grad(set_to_none=True)
             with autocast(device_type=device.type, enabled=use_amp):
-                output = discriminator(fake_img)
-                errD_fake = criterion(output, label)
+                output_real = discriminator(real_img)
+                loss_real = criterion(output_real, real_labels)
+
+                output_fake = discriminator(fake_img.detach())
+                loss_fake = criterion(output_fake, fake_labels)
             
-            scaler.scale(errD_fake).backward(retain_graph=True)
+                assert not torch.isnan(loss_real), "NaN detected in Discriminator real loss"
+                assert not torch.isnan(loss_fake), "NaN detected in Discriminator fake loss"
+
+                errD = loss_real + loss_fake
+
+            scaler.scale(errD).backward()
+            scaler.unscale_(optimizerD)
+            torch.nn.utils.clip_grad_norm_(discriminator.parameters(), 1.0)
             scaler.step(optimizerD)
             scaler.update()
-            D_G_z1 = output.mean().item()
 
-            errD = errD_real + errD_fake
+            D_x = output_real.mean().item()
+            D_G_z1 = output_fake.mean().item()
+
             running_D_loss += errD.item()
-            optimizerD.step()
 
             ############################
             # (2) Update G network: maximize log(D(G(z)))
             ###########################
 
-            generator.zero_grad(set_to_none=True)
-            label.fill_(real_label)  # fake labels are real for the generator cost function
+            optimizerG.zero_grad(set_to_none=True)
             with autocast(device_type=device.type, enabled=use_amp):
                 output = discriminator(fake_img)
-                errG = criterion(output, label)
+                errG = criterion(output, real_labels)
             
             scaler.scale(errG).backward()
+            scaler.unscale_(optimizerG)
+            torch.nn.utils.clip_grad_norm_(generator.parameters(), 1.0)
             scaler.step(optimizerG)
             scaler.update()
+
             D_G_z2 = output.mean().item()
             running_G_loss += errG.item()
-            optimizerG.step()
 
             loop.set_postfix(loss_D=errD.item(), loss_G=errG.item(), D_x=D_x, D_G_z1=D_G_z1, D_G_z2=D_G_z2)
 
@@ -161,5 +166,5 @@ def training(generator: Generator,
 
         epoch_tqdm.set_postfix(train_D_loss=epoch_D_loss, train_G_loss=epoch_G_loss)
 
-        torch.save(generator.state_dict(), '%s/generator_epoch_%d.pth' % ('./GANs/saved', epoch))
-        torch.save(discriminator.state_dict(), '%s/discriminator_epoch_%d.pth' % ('./GANs/saved', epoch))
+        # torch.save(generator.state_dict(), '%s/generator_epoch_%d.pth' % ('./GANs/saved', epoch))
+        # torch.save(discriminator.state_dict(), '%s/discriminator_epoch_%d.pth' % ('./GANs/saved', epoch))
