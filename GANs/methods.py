@@ -63,10 +63,10 @@ def training(generator: Generator,
 
     Returns
     -------
-    train_losses : list of float
-        Average training loss for each epoch.
-    train_accuracies : list of float
-        Training accuracy (percentage) for each epoch.
+    D_loss : list of float
+        Average discriminator training loss for each epoch.
+    G_loss : list of float
+        Average generator training loss for each epoch.
     """
 
     generator.to(device)
@@ -168,3 +168,4 @@ def training(generator: Generator,
 
         # torch.save(generator.state_dict(), '%s/generator_epoch_%d.pth' % ('./GANs/saved', epoch))
         # torch.save(discriminator.state_dict(), '%s/discriminator_epoch_%d.pth' % ('./GANs/saved', epoch))
+    return D_loss, G_loss
