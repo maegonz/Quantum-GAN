@@ -10,7 +10,8 @@ def dataloader(name: str,
                batch_size: int,
                shuffle: bool=True,
                val_split: Optional[float] = None,
-               augment: bool=False):
+               augment: bool=False,
+               img_size: Optional[int] = None):
   """
   Dataloader for the specified dataset.
 
@@ -40,9 +41,9 @@ def dataloader(name: str,
   # Image transformation
   transform = transforms.Compose([
       transforms.RandomCrop(32, padding=4) if name in ['CIFAR10', 'CIFAR100'] and augment else
-      transforms.Resize(28) if name == 'MNIST' else transforms.Resize(32),
+      transforms.Resize(28) if name == 'MNIST' else transforms.Resize(img_size) if name == 'CelebA' else transforms.Resize(32),
       transforms.RandomHorizontalFlip() if name in ['CIFAR10', 'CIFAR100'] and augment else
-      transforms.Lambda(lambda x: x),
+      transforms.CenterCrop(img_size) if name == 'CelebA' else transforms.Lambda(lambda x: x),
       transforms.ToTensor(),
       transforms.Normalize((0.5,), (0.5,)) if name == 'MNIST' else 
       transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -58,23 +59,31 @@ def dataloader(name: str,
   elif name == 'CIFAR100':
     train_set = tv.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform)
     test_set = tv.datasets.CIFAR100(root='./data', train=False, download=True, transform=transform)
+  elif name == 'CelebA':
+    train_set = tv.datasets.CelebA(root='./data', split='train', download=True, transform=transform)
+    test_set = tv.datasets.CelebA(root='./data', split='test', download=True, transform=transform)
   else:
-    raise ValueError("Invalid dataset name. Choose between 'MNIST', 'CIFAR10' or 'CIFAR100'.")
+    raise ValueError("Invalid dataset name. Choose between 'MNIST', 'CIFAR10', 'CelebA' or 'CIFAR100'.")
 
   # Create DataLoaders
   if val_split is not None:
-    # Split trainig data into train and validation
-    total_size = len(train_set)
-    valid_size = int(val_split * total_size)
-    train_size = total_size - valid_size
+    if name == 'CelebA':
+      valid_set = tv.datasets.CelebA(root='./data', split='valid', download=True, transform=transform)
+      valid_loader = DataLoader(valid_set, batch_size=batch_size, shuffle=False)
+      return train_loader, test_loader, valid_loader
+    else:
+      # Split trainig data into train and validation
+      total_size = len(train_set)
+      valid_size = int(val_split * total_size)
+      train_size = total_size - valid_size
 
-    train_set, valid_set = random_split(train_set, [train_size, valid_size])
-    
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=shuffle)
-    valid_loader = DataLoader(valid_set, batch_size=batch_size, shuffle=False)
-    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False)
-    
-    return train_loader, test_loader, valid_loader
+      train_set, valid_set = random_split(train_set, [train_size, valid_size])
+      
+      train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=shuffle)
+      valid_loader = DataLoader(valid_set, batch_size=batch_size, shuffle=False)
+      test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False)
+      
+      return train_loader, test_loader, valid_loader
   
   else:
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=shuffle)
