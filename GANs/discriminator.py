@@ -21,10 +21,13 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
 
         self.discriminator = nn.Sequential(
-            # Input: in_channels x 32 x 32
-            nn.Conv2d(in_channels, num_features, kernel_size=4, stride=2, padding=1, bias=bias),
+            # Input: in_channels x 128 x 128
+            nn.Conv2d(in_channels, num_features // 4, kernel_size=4, stride=2, padding=1, bias=bias),
             nn.LeakyReLU(0.2, inplace=True),
-            # num_features x 16 x 16
+            DiscBlock(num_features // 4, num_features // 2, bias=bias),
+            # (num_features//2) x 16 x 16
+            DiscBlock(num_features // 2, num_features, bias=bias),
+            # (num_features) x 8 x 8
             DiscBlock(num_features, num_features * 2, bias=bias),
             # (num_features*2) x 8 x 8
             DiscBlock(num_features * 2, num_features * 4, bias=bias),
