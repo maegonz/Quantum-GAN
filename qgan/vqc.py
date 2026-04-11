@@ -1,9 +1,7 @@
 import pennylane as qml
-from pennylane import numpy as np
-import torch
-import torch.nn as nn
 
-def quantum_circuit(n_qubits, n_layers, noise, weights):
+
+def simple_circuit(weights, noise, n_qubits=4, n_layers=3):
     # 1. Latent Space Mapping (Encoding Noise)
     for i in range(n_qubits):
         qml.RY(noise[i], wires=i)
@@ -20,9 +18,9 @@ def quantum_circuit(n_qubits, n_layers, noise, weights):
             qml.CNOT(wires=[i, (i + 1) % n_qubits])
             
     # 3. Measurement (Returns expectation values as pixel intensities)
-    return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
+    return qml.probs(wires=range(n_qubits))
 
-def patch_circuit(n_qubits, noise, weights):
+def strongly_entangling_circuit(weights, noise,  n_qubits=4):
     # Encoding: Transform noise into quantum state
     # We use Angle Embedding for simplicity here
     qml.AngleEmbedding(noise, wires=range(n_qubits))
