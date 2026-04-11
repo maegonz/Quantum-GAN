@@ -71,6 +71,7 @@ from .vqc import quantum_circuit, patch_circuit
 
 
 class Generator(nn.Module):
+    @nn.compact
     def __call__(self,
                  circuit: function,
                  weights: jnp.ndarray,
@@ -126,7 +127,7 @@ class Generator(nn.Module):
         Returns
         -------
         images: jnp.ndarray
-            The reconstructed images tensor with shape (batch_size, 28, 28, 1) NCHW format.
+            The reconstructed images tensor with shape (batch_size, 28, 28, 1) NHWC format.
         """
 
         batch_size = patches.shape[0]
