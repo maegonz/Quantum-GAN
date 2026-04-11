@@ -45,8 +45,8 @@ def dataloader(name: str,
       transforms.RandomHorizontalFlip() if name in ['CIFAR10', 'CIFAR100'] and augment else
       transforms.CenterCrop(img_size) if name == 'CelebA' else transforms.Lambda(lambda x: x),
       transforms.ToTensor(),
-      transforms.Normalize((0.5,), (0.5,)) if name == 'MNIST' else 
-      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+      # transforms.Normalize((0.5,), (0.5,)) if name == 'MNIST' else 
+      # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
   ])
 
   # Load dataset
