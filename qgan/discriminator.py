@@ -56,14 +56,11 @@ class Discriminator(nn.Module):
         # x expected shape: (batch, 28, 28, 1)
         
         # Block 1
-        # Notice we only provide the output 'features' and tuple for kernel
         x = nn.Conv(features=self.num_features, kernel_size=(4, 4), strides=(2, 2), padding='SAME')(x)
         x = nn.leaky_relu(x, negative_slope=0.2)
         
         # Block 2
         x = nn.Conv(features=self.num_features * 2, kernel_size=(4, 4), strides=(2, 2), padding='SAME')(x)
-        # Flax doesn't have an explicit InstanceNorm. 
-        # InstanceNorm is mathematically equivalent to GroupNorm where groups = channels
         x = nn.GroupNorm(num_groups=self.num_features * 2)(x) 
         x = nn.leaky_relu(x, negative_slope=0.2)
         
@@ -79,7 +76,6 @@ class Discriminator(nn.Module):
         # Dropout in Flax requires a deterministic flag tied to the training state
         x = nn.Dropout(rate=0.3, deterministic=not training)(x)
         
-        # Again, no in_features needed! JAX calculates the 256*4*4 for you.
         x = nn.Dense(features=1)(x)
         
         return x
