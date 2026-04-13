@@ -5,7 +5,6 @@ import jax
 import jax.numpy as jnp
 import flax.linen as nn
 from pennylane import numpy as np
-from .vqc import quantum_circuit, patch_circuit
 
 
 # class QuantumGenerator(nn.Module):
@@ -73,9 +72,9 @@ from .vqc import quantum_circuit, patch_circuit
 class Generator(nn.Module):
     @nn.compact
     def __call__(self,
-                 circuit: function,
-                 weights: jnp.ndarray,
+                 circuit,
                  noise: jnp.ndarray,
+                 weights: jnp.ndarray,
                  n_qubits: int=4,
                  n_patches: int=49):
         """
@@ -84,7 +83,7 @@ class Generator(nn.Module):
 
         Parameters
         ----------
-        circuit: function
+        circuit: wf.qnode.Qnode or function
             The quantum circuit function to generate patches.
         weights: jnp.ndarray
             The trainable weights for the quantum circuit, shape (n_patches, layers, qubits, rotations).
@@ -108,7 +107,10 @@ class Generator(nn.Module):
         batch_patched_images = jax.vmap(patched_images, in_axes=(0, None))  # Map over noise batch, not weights
 
         # Generate patches for the entire batch
-        dispatched_images = batch_patched_images(weights, noise)  # (batch_size, n_patches, 16)
+        dispatched_images = batch_patched_images(weights, noise)  # (n_patches, batch_size, 16)
+        # print("Dispatched images shape (patches, batch, pixels):", dispatched_images.shape)
+        dispatched_images = jnp.transpose(dispatched_images, (1, 0, 2))  # (batch_size, n_patches, 16)
+        # print("Dispatched images shape (batch, patches, pixels):", dispatched_images.shape)
 
         generated_images = self._reconstruct_image(dispatched_images)
         
