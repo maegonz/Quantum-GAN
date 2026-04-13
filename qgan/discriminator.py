@@ -61,13 +61,17 @@ class Discriminator(nn.Module):
         
         # Block 2
         x = nn.Conv(features=self.num_features * 2, kernel_size=(4, 4), strides=(2, 2), padding='SAME')(x)
-        x = nn.GroupNorm(num_groups=self.num_features * 2)(x) 
-        x = nn.leaky_relu(x, negative_slope=0.2)
+        # x = nn.GroupNorm(num_groups=self.num_features * 2)(x)
+        x = nn.LayerNorm()(x)  # LayerNorm can be used as an alternative to GroupNorm 
+        # x = nn.leaky_relu(x, negative_slope=0.2)
+        x = nn.relu(x)         # ReLU can be used as an alternative to LeakyReLU
         
         # Block 3
         x = nn.Conv(features=self.num_features * 4, kernel_size=(3, 3), strides=(2, 2), padding='SAME')(x)
-        x = nn.GroupNorm(num_groups=self.num_features * 4)(x)
-        x = nn.leaky_relu(x, negative_slope=0.2)
+        # x = nn.GroupNorm(num_groups=self.num_features * 4)(x)
+        x = nn.LayerNorm()(x)  # LayerNorm can be used as an alternative to GroupNorm
+        # x = nn.leaky_relu(x, negative_slope=0.2)
+        x = nn.relu(x)         # ReLU can be used as an alternative to LeakyReLU
         
         # Flatten for the final dense layer
         x = x.reshape((x.shape[0], -1))
