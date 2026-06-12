@@ -30,8 +30,8 @@ class Generator(nn.Module):
         ])
 
         self.dev = qml.device("default.qubit", wires=range(self.n_qubits))
-        self.qnode = qml.QNode(self.circuit, self.dev, interface="torch")  # Adjoint differentation for faster gradients calculation
-
+        # self.qnode = qml.QNode(self.circuit, self.dev, interface="torch", diff_method="adjoint")  # Adjoint differentation for faster gradients calculation
+        self.qnode = qml.QNode(self.circuit, self.dev, interface="torch")  # Backpropagation for better compatibility with PyTorch optimizers
     
     def forward(self, noise_batch):
         batch_size = noise_batch.size(0)
@@ -39,9 +39,10 @@ class Generator(nn.Module):
 
         for weight in self.weights:
             # Shape: (batch_size, 2**n_qubits)
-            probs = self.qnode(weight, noise_batch, n_qubits=self.n_qubits, a_qubits=self.n_ancillas, n_layers=self.n_layers)  
+            probs = self.qnode(weight, noise_batch, n_qubits=self.n_qubits, a_qubits=self.n_ancillas, n_layers=self.n_layers)
             # Shape: (batch_size, patch_size)
             probs_ancilla_0 = probs[:, :self.patch_size]
+            # probs_ancilla_0 = probs[:self.patch_size]   # for adjoint differentiation, the output shape is (2**n_qubits,) instead of (batch_size, 2**n_qubits) as in backpropagation, so we take only the first patch_size elements
 
             # Normalize
             sum_probs = torch.sum(probs_ancilla_0, dim=1, keepdim=True) + 1e-8

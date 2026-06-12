@@ -30,7 +30,7 @@ def training(generator: Generator,
 
     epochs_tqdm = tqdm(range(epochs), desc="Training progress")
 
-    for _ in epochs_tqdm:
+    for epoch in epochs_tqdm:
         for i, (real_imgs, _) in enumerate(train_loader):
             real_imgs = real_imgs.to(device)
             batch_size = real_imgs.size(0)
@@ -70,8 +70,13 @@ def training(generator: Generator,
             g_loss.backward()
             optimizer_G.step()
 
-        G_loss.append(g_loss.item())
-        D_loss.append(d_loss.item())
+            G_loss.append(g_loss.item())
+            D_loss.append(d_loss.item())
+            
         epochs_tqdm.set_postfix({"G Loss": g_loss.item(), "D Loss": d_loss.item()})
+
+        if epoch > 0 and epoch % 2 == 0:
+            torch.save(generator.state_dict(), f"./save/generator_epoch_{epoch}.pth")
+            torch.save(critic.state_dict(), f"./save/critic_epoch_{epoch}.pth")
         
     return G_loss, D_loss
