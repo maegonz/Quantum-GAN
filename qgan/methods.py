@@ -1,3 +1,5 @@
+from typing import Optional, Union
+
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
@@ -18,7 +20,8 @@ def training(generator: Generator,
              lambda_gp: float,
              lambda_tv: float,
              n_critic: int,
-             device: torch.device):
+             device: torch.device,
+             save_path: Union[str, bool] = False):
     """
     Train the GAN for a specified number of epochs.
     """
@@ -75,8 +78,9 @@ def training(generator: Generator,
             
         epochs_tqdm.set_postfix({"G Loss": g_loss.item(), "D Loss": d_loss.item()})
 
-        if epoch > 0 and epoch % 2 == 0:
-            torch.save(generator.state_dict(), f"./save/generator_epoch_{epoch}.pth")
-            torch.save(critic.state_dict(), f"./save/critic_epoch_{epoch}.pth")
+        if save_path:
+            if epoch > 0 and epoch % 2 == 0:
+                torch.save(generator.state_dict(), f"{save_path}/generator_epoch_{epoch}.pth")
+                torch.save(critic.state_dict(), f"{save_path}/critic_epoch_{epoch}.pth")
         
     return G_loss, D_loss
